@@ -1,0 +1,50 @@
+/*
+ * cf_uart_rx.c
+ *
+ *  Created on: Nov 4, 2025
+ *      Author: 35832
+ */
+
+
+#include "usart.h"
+#include "stm32h7xx_ll_usart.h"
+#include "main.h"
+#include "gpio.h"
+#include <stdint.h>
+
+/* 简单接收：轮询 RXNE，收一行或超时 */
+static int Uart2_ReadLine(uint8_t *buf, int maxlen, uint32_t timeout_ms)
+{
+    uint32_t start = HAL_GetTick();
+    int n = 0;
+    while ((HAL_GetTick() - start) < timeout_ms) {
+        if (LL_USART_IsActiveFlag_RXNE(USART2)) {
+            uint8_t b = LL_USART_ReceiveData8(USART2);
+            if (n < maxlen) buf[n++] = b;
+            if (b == '\n') break;   // 收到换行就认为一条消息结束
+        }
+    }
+    return n; // 返回本次读取字节数（可能为 0 表示超时）
+}
+
+volatile uint32_t g_recv_count = 0;
+
+void CrazyUART_RecvOnly(void)
+{
+    uint8_t line[128];
+
+    // 准备一个 LED 指示（按你板子改引脚/函数）
+    MX_GPIO_Init();  // 确保已初始化 GPIO
+    // 假设你有 LED 引脚，比如 LD1：替换为你工程里的 ledSet 或 HAL_GPIO_TogglePin()
+    while (1)
+    {
+        int n = Uart2_ReadLine(line, sizeof(line), 1500); // 1.5s 超时
+        if (n > 0) {
+            g_recv_count++;                    // 收到一条消息
+            HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_0); // 💡 替换成你的 LED 引脚
+            // 不回发、不打印，只用 LED/变量验证
+        }
+        // 小间隔，避免空转占满 CPU
+        HAL_Delay(10);
+    }
+}

@@ -1,0 +1,10 @@
+21:59:30 **** Incremental Build of configuration Debug for project Athena_H7 ****
+make -j16 all 
+arm-none-eabi-size  Athena_H7.elf 
+   text	   data	    bss	    dec	    hex	filename
+  71532	   2036	  59568	 133136	  20810	Athena_H7.elf
+Finished building: default.size.stdout
+ 
+
+21:59:31 Build Finished. 0 errors, 0 warnings. (took 1s.667ms)
+

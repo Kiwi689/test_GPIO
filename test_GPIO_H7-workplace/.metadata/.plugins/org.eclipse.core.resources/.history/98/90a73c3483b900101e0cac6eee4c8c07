@@ -1,0 +1,22 @@
+#include "usart.h"
+#include <stdio.h>
+#include "main.h"
+
+void CrazyUART_Recv_PrintToSWV(void)
+{
+    uint8_t rx;  // 存放接收到的单个字节
+
+    printf("UART2 ready, waiting for data from Crazyflie...\r\n");
+
+    while (1)
+    {
+        // 等待接收数据
+        if (LL_USART_IsActiveFlag_RXNE(USART2))
+        {
+            rx = LL_USART_ReceiveData8(USART2); // 读取1字节
+
+            // 打印到 SWV 控制台
+            printf("%c", rx);
+        }
+    }
+}
